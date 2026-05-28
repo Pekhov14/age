@@ -5,8 +5,23 @@ import (
 	"time"
 )
 
-func calculateDaysUntilBD(birthday time.Time) (string, int) {
+const (
+	OneMonthThreshold = 32
+)
+
+func calculateAge(birthday time.Time) int {
 	now := time.Now()
+	age := now.Year() - birthday.Year()
+
+	// If your birthday hasn't arrived yet this year, subtract 1.
+	if now.YearDay() < birthday.YearDay() {
+		age--
+	}
+	return age
+}
+
+func calculateDaysUntilBD(birthday time.Time) (string, int) {
+	now := time.Now().Truncate(24 * time.Hour)
 	nextBD := time.Date(now.Year(), birthday.Month(), birthday.Day(), 0, 0, 0, 0, time.Local)
 
 	if nextBD.Before(now) {
@@ -19,42 +34,42 @@ func calculateDaysUntilBD(birthday time.Time) (string, int) {
 	case days == 0:
 		return "Birthday today!", days
 	case days == 1:
-		return "Tomorrow birthday!", days
+		return "Tomorrow!", days
 	case days < 7:
 		return fmt.Sprintf("%d days", days), days
-	case days < 30:
+	case days < OneMonthThreshold:
 		weeks := days / 7
-		if weeks == 1 {
-			return "1 week ", days
+		remDays := days % 7
+		if remDays == 0 {
+			return fmt.Sprintf("%d weeks", weeks), days
 		}
-		return fmt.Sprintf("%d weeks", weeks), days
+		return fmt.Sprintf("%d weeks, %d days", weeks, remDays), days
 	default:
-		months := days / 30
-		remainingWeeks := (days - months*30) / 7
+		months := calculateMonthsUntil(now, nextBD)
+		afterMonths := now.AddDate(0, months, 0)
+		remainingDays := int(nextBD.Sub(afterMonths).Hours() / 24)
 
-		monthStr := "1 month"
-		if months > 1 {
-			monthStr = fmt.Sprintf("%d months", months)
+		if remainingDays == 0 {
+			return fmt.Sprintf("%d months", months), days
 		}
 
-		if remainingWeeks == 0 {
-			return fmt.Sprintf("%s", monthStr), days
+		weeks := remainingDays / 7
+		remDays := remainingDays % 7
+
+		if weeks == 0 {
+			return fmt.Sprintf("%d months, %d days", months, remDays), days
 		}
-		weekStr := "1 week"
-		if remainingWeeks > 1 {
-			weekStr = fmt.Sprintf("%d weeks", remainingWeeks)
+		if remDays == 0 {
+			return fmt.Sprintf("%d months, %d weeks", months, weeks), days
 		}
-		return fmt.Sprintf("%s %s", monthStr, weekStr), days
+		return fmt.Sprintf("%d months, %d weeks, %d days", months, weeks, remDays), days
 	}
 }
 
-func calculateAge(birthday time.Time) int {
-	now := time.Now()
-	age := now.Year() - birthday.Year()
-
-	// If your birthday hasn't arrived yet this year, subtract 1.
-	if now.YearDay() < birthday.YearDay() {
-		age--
+func calculateMonthsUntil(start, end time.Time) int {
+	months := 0
+	for start.AddDate(0, months+1, 0).Before(end) {
+		months++
 	}
-	return age
+	return months
 }
