@@ -27,7 +27,7 @@ func calculateDaysUntilBD(birthday time.Time) (string, int) {
 		if weeks == 1 {
 			return "1 week ", days
 		}
-		return fmt.Sprintf("%d weeks (%d days)", weeks, days), days
+		return fmt.Sprintf("%d weeks", weeks), days
 	default:
 		months := days / 30
 		remainingWeeks := (days - months*30) / 7
@@ -38,13 +38,13 @@ func calculateDaysUntilBD(birthday time.Time) (string, int) {
 		}
 
 		if remainingWeeks == 0 {
-			return fmt.Sprintf("%s (%d days)", monthStr, days), days
+			return fmt.Sprintf("%s", monthStr), days
 		}
 		weekStr := "1 week"
 		if remainingWeeks > 1 {
 			weekStr = fmt.Sprintf("%d weeks", remainingWeeks)
 		}
-		return fmt.Sprintf("%s %s (%d days)", monthStr, weekStr, days), days
+		return fmt.Sprintf("%s %s", monthStr, weekStr), days
 	}
 }
 
