@@ -9,6 +9,7 @@ type PersonInfo struct {
 	Name        string
 	Birthday    string
 	Age         int
+	DaysToBirth int
 	DaysUntilBD string
 }
 
@@ -34,29 +35,16 @@ func (s *PersonService) List() ([]PersonInfo, error) {
 	var personInfos []PersonInfo
 
 	for _, person := range persons {
+		strFormat, days := calculateDaysUntilBD(person.Birthday)
+
 		personInfos = append(personInfos, PersonInfo{
 			Name:        person.Name,
 			Birthday:    person.Birthday.Format("2006-01-02"),
 			Age:         calculateAge(person.Birthday),
-			DaysUntilBD: calculateDaysUnliBd(person.Birthday),
+			DaysToBirth: days,
+			DaysUntilBD: strFormat,
 		})
 	}
 
 	return personInfos, nil
-}
-
-func calculateDaysUnliBd(birthday time.Time) string {
-	// todo: create calculateDaysUnliBd
-	return "Next week"
-}
-
-func calculateAge(birthday time.Time) int {
-	now := time.Now()
-	age := now.Year() - birthday.Year()
-
-	// If your birthday hasn't arrived yet this year, subtract 1.
-	if now.YearDay() < birthday.YearDay() {
-		age--
-	}
-	return age
 }
