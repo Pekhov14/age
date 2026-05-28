@@ -3,7 +3,6 @@ package cmd
 import (
 	"fmt"
 	"strings"
-	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -27,16 +26,12 @@ to quickly create a Cobra application.`,
 		fmt.Printf("%-10s %-15s %-4s %-10s\n", "Name", "Birthday", "Age", "Next Birthday")
 		fmt.Println(strings.Repeat("-", 50))
 
-		currentYear := time.Now().Year()
-
 		for _, person := range persons {
-			age := currentYear - person.Birthday.Year()
-
 			fmt.Printf("%-10s %-15s %-4d %-10s \n",
 				person.Name,
-				person.Birthday.Format("2006-01-02"),
-				age,
-				"Next week",
+				person.Birthday,
+				person.Age,
+				person.DaysUntilBD,
 			)
 		}
 
