@@ -24,16 +24,15 @@ to quickly create a Cobra application.`,
 			fmt.Println("No persons found")
 		}
 
-		fmt.Printf("%-4s %-10s %-15s %-4s %-10s\n", "ID", "Name", "Birthday", "Age", "Next Birthday")
-		fmt.Println(strings.Repeat("-", 55))
+		fmt.Printf("%-10s %-15s %-4s %-10s\n", "Name", "Birthday", "Age", "Next Birthday")
+		fmt.Println(strings.Repeat("-", 50))
 
 		currentYear := time.Now().Year()
 
 		for _, person := range persons {
 			age := currentYear - person.Birthday.Year()
 
-			fmt.Printf("%-4d %-10s %-15s %-4d %-10s \n",
-				22,
+			fmt.Printf("%-10s %-15s %-4d %-10s \n",
 				person.Name,
 				person.Birthday.Format("2006-01-02"),
 				age,
