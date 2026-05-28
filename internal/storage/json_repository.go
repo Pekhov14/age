@@ -48,15 +48,16 @@ func (r *JsonRepository) DeletePerson(p Person) error {
 }
 
 func (r *JsonRepository) ListPeople() ([]Person, error) {
-	// data, err := os.ReadFile(r.filePath)
-	// if err != nil {
-	//     return []Person{}, nil // File not exits
-	// }
-	// var people []Person
-	// err = json.Unmarshal(data, &people)
-	// return people, err
+	var persons []Person
 
-	return []Person{}, nil
+	fileName := "data.json"
+
+	data, err := os.ReadFile(fileName)
+	if err != nil {
+		return []Person{}, nil // File not exits
+	}
+	err = json.Unmarshal(data, &persons)
+	return persons, err
 }
 
 func (r *JsonRepository) save(people []Person) error {

@@ -17,18 +17,20 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("add called")
-
 		birthday, err := time.Parse("2006-01-02", args[1])
 		if err != nil {
-			fmt.Println("Not a correct date, example 2006-01-02")
+			fmt.Println("Not a correct date, example 2006-01-30")
 			return
 		}
 
 		err = personService.Add(args[0], birthday)
 		if err != nil {
+			fmt.Println("Error: ")
+			fmt.Println(err)
 			return
 		}
+
+		fmt.Printf("Person %s added\n", args[0])
 	},
 }
 

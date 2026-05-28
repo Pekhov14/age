@@ -17,3 +17,7 @@ func (s *PersonService) Add(name string, birthday time.Time) error {
 	p := storage.Person{Name: name, Birthday: birthday}
 	return s.repo.AddPerson(p)
 }
+
+func (s *PersonService) List() ([]storage.Person, error) {
+	return s.repo.ListPeople()
+}

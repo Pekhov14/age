@@ -2,6 +2,8 @@ package cmd
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/spf13/cobra"
 )
@@ -17,7 +19,28 @@ Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("list called")
+		persons, _ := personService.List()
+		if len(persons) == 0 {
+			fmt.Println("No persons found")
+		}
+
+		fmt.Printf("%-4s %-10s %-15s %-4s %-10s\n", "ID", "Name", "Birthday", "Age", "Next Birthday")
+		fmt.Println(strings.Repeat("-", 55))
+
+		currentYear := time.Now().Year()
+
+		for _, person := range persons {
+			age := currentYear - person.Birthday.Year()
+
+			fmt.Printf("%-4d %-10s %-15s %-4d %-10s \n",
+				22,
+				person.Name,
+				person.Birthday.Format("2006-01-02"),
+				age,
+				"Next week",
+			)
+		}
+
 	},
 }
 
