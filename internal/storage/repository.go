@@ -9,6 +9,6 @@ type Person struct {
 
 type Repository interface {
 	AddPerson(Person) error
-	DeletePerson(Person) error
+	DeleteByName(name string) error
 	ListPeople() ([]Person, error)
 }

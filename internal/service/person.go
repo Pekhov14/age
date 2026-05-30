@@ -48,3 +48,7 @@ func (s *PersonService) List() ([]PersonInfo, error) {
 
 	return personInfos, nil
 }
+
+func (s *PersonService) Delete(name string) error {
+	return s.repo.DeleteByName(name)
+}

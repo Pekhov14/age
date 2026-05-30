@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"slices"
 )
 
 type JsonRepository struct {
@@ -15,57 +16,58 @@ func NewJsonRepository(filePath string) *JsonRepository {
 }
 
 func (r *JsonRepository) AddPerson(p Person) error {
-	// people, _ := r.ListPeople()
-	// people = append(people, p)
-	// return r.save(people)
-
-	//path := r.filePath
-
-	// TODO: фильтровать можно в цикле есть ли такое имя
-	// Или добавить еще ключ имя
-
-	var persons []Person
-
-	fileName := "data.json"
-
-	data, err := os.ReadFile(r.filePath)
-	if err == nil {
-		_ = json.Unmarshal(data, &persons)
+	persons, err := r.load()
+	if err != nil {
+		return err
 	}
 
 	persons = append(persons, p)
 
-	updatedData, _ := json.MarshalIndent(persons, "", "  ")
-	_ = os.WriteFile(fileName, updatedData, 0644)
-
-	fmt.Println("Типа добавил в файл)")
-	return nil
+	return r.save(persons)
 }
 
-func (r *JsonRepository) DeletePerson(p Person) error {
-	// реализация позже
-	return nil
+func (r *JsonRepository) DeleteByName(name string) error {
+	persons, err := r.load()
+	if err != nil {
+		return err
+	}
+
+	lengthBeforeDelete := len(persons)
+
+	persons = slices.DeleteFunc(persons, func(p Person) bool {
+		return p.Name == name
+	})
+
+	lengthAfterDelete := len(persons)
+
+	if lengthAfterDelete == lengthBeforeDelete {
+		return fmt.Errorf("person %q not found", name)
+	}
+
+	return r.save(persons)
 }
 
 func (r *JsonRepository) ListPeople() ([]Person, error) {
+	return r.load()
+}
+
+func (r *JsonRepository) load() ([]Person, error) {
 	var persons []Person
 
-	fileName := "data.json"
-
-	data, err := os.ReadFile(fileName)
+	data, err := os.ReadFile(r.filePath)
 	if err != nil {
-		return []Person{}, nil // File not exits
+		return []Person{}, nil // File not exists
 	}
+
 	err = json.Unmarshal(data, &persons)
 	return persons, err
 }
 
 func (r *JsonRepository) save(people []Person) error {
-	// data, err := json.Marshal(people)
-	// if err != nil {
-	//     return err
-	// }
-	// return os.WriteFile(r.filePath, data, 0644)
+	data, err := json.MarshalIndent(people, "", "  ")
+	if err != nil {
+		return err
+	}
 
-	return nil
+	return os.WriteFile(r.filePath, data, 0644)
 }
