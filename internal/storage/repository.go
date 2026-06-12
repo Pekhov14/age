@@ -4,11 +4,12 @@ import "time"
 
 type Person struct {
 	Name     string    `json:"name"`
-	Birthday time.Time `json:"age"`
+	Birthday time.Time `json:"birthday"`
 }
 
 type Repository interface {
 	AddPerson(Person) error
 	DeleteByName(name string) error
+	Update(oldName string, person Person) error
 	ListPeople() ([]Person, error)
 }

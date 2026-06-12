@@ -2,47 +2,72 @@ package cmd
 
 import (
 	"age/internal/service"
+	"age/internal/ui"
+	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
 
 var personService *service.PersonService
 
-// rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "age",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+	Use:           "age [birthday]",
+	Short:         "Keep track of birthdays without doing mental math",
+	Long:          "Age is a small CLI for saving birthdays, checking current ages, and seeing how long remains until the next celebration.",
+	SilenceUsage:  true,
+	SilenceErrors: true,
+	Args:          cobra.NoArgs,
+	Run: func(cmd *cobra.Command, args []string) {
+		 cmd.Help()
+	},
 }
 
-// Execute adds all child commands to the root command and sets flags appropriately.
-// This is called by main.main(). It only needs to happen once to the rootCmd.
 func Execute(serv *service.PersonService) {
 	personService = serv
 
-	err := rootCmd.Execute()
-	if err != nil {
+	if tryBirthdayPreview(os.Args[1:]) {
+		return
+	}
+
+	if err := rootCmd.Execute(); err != nil {
+		ui.PrintError(fmt.Sprintf("command failed: %v", err))
 		os.Exit(1)
 	}
 }
 
-func init() {
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+func tryBirthdayPreview(args []string) bool {
+	if len(args) != 1 {
+		return false
+	}
 
-	// rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.age.yaml)")
+	candidate := strings.TrimSpace(args[0])
+	if candidate == "" || strings.HasPrefix(candidate, "-") || isSubcommand(candidate) {
+		return false
+	}
 
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	birthday, err := parseBirthday(candidate)
+	if err != nil {
+		return false
+	}
+
+	fmt.Println(ui.RenderBirthdayPreview(personService.PreviewBirthday(birthday)))
+	return true
+}
+
+func isSubcommand(name string) bool {
+	for _, command := range rootCmd.Commands() {
+		if command.Name() == name {
+			return true
+		}
+
+		for _, alias := range command.Aliases {
+			if alias == name {
+				return true
+			}
+		}
+	}
+
+	return false
 }
