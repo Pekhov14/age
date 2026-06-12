@@ -74,6 +74,10 @@ func (r *JsonRepository) load() ([]Person, error) {
 
 	data, err := os.ReadFile(r.filePath)
 	if err != nil {
+		if os.IsNotExist(err) {
+	        return []Person{}, nil
+	    }
+
 		return []Person{}, nil
 	}
 

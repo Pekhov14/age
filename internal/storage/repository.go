@@ -4,7 +4,7 @@ import "time"
 
 type Person struct {
 	Name     string    `json:"name"`
-	Birthday time.Time `json:"age"`
+	Birthday time.Time `json:"birthday"`
 }
 
 type Repository interface {

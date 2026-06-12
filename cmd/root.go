@@ -20,13 +20,7 @@ var rootCmd = &cobra.Command{
 	SilenceErrors: true,
 	Args:          cobra.NoArgs,
 	Run: func(cmd *cobra.Command, args []string) {
-		persons, err := personService.List()
-		if err != nil {
-			ui.PrintError(fmt.Sprintf("could not load birthdays: %v", err))
-			return
-		}
-
-		fmt.Println(ui.RenderDashboard(persons))
+		 cmd.Help()
 	},
 }
 
