@@ -22,7 +22,6 @@ func (r *JsonRepository) AddPerson(p Person) error {
 	}
 
 	persons = append(persons, p)
-
 	return r.save(persons)
 }
 
@@ -33,15 +32,34 @@ func (r *JsonRepository) DeleteByName(name string) error {
 	}
 
 	lengthBeforeDelete := len(persons)
-
 	persons = slices.DeleteFunc(persons, func(p Person) bool {
 		return p.Name == name
 	})
 
-	lengthAfterDelete := len(persons)
-
-	if lengthAfterDelete == lengthBeforeDelete {
+	if len(persons) == lengthBeforeDelete {
 		return fmt.Errorf("person %q not found", name)
+	}
+
+	return r.save(persons)
+}
+
+func (r *JsonRepository) Update(oldName string, person Person) error {
+	persons, err := r.load()
+	if err != nil {
+		return err
+	}
+
+	updated := false
+	for i := range persons {
+		if persons[i].Name == oldName {
+			persons[i].Name = person.Name
+			persons[i].Birthday = person.Birthday
+			updated = true
+		}
+	}
+
+	if !updated {
+		return fmt.Errorf("person %q not found", oldName)
 	}
 
 	return r.save(persons)
@@ -56,11 +74,14 @@ func (r *JsonRepository) load() ([]Person, error) {
 
 	data, err := os.ReadFile(r.filePath)
 	if err != nil {
-		return []Person{}, nil // File not exists
+		return []Person{}, nil
 	}
 
-	err = json.Unmarshal(data, &persons)
-	return persons, err
+	if err := json.Unmarshal(data, &persons); err != nil {
+		return nil, err
+	}
+
+	return persons, nil
 }
 
 func (r *JsonRepository) save(people []Person) error {
